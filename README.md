@@ -1,0 +1,1 @@
+🔐 This app requires a Plex Token, Plex URL, and (optionally) a TMDb API key. You’ll be prompted to enter these on first run — they are securely stored in config.json (which is ignored by Git).
