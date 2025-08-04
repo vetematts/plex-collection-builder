@@ -1,2 +1,4 @@
 .env
 config.json
+letterboxd_parser.py
+test.py
