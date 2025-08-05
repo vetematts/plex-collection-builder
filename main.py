@@ -1,34 +1,33 @@
-import os
-from dotenv import load_dotenv
-from colorama import init, Fore, Style
-from pyfiglet import Figlet
-from styling import print_plex_logo_ascii
-import emojis
-from plex_manager import PlexManager
-from tmdb_search import TMDbSearch
-from plexapi.exceptions import NotFound
-import re
-import json
-from pyfiglet import Figlet
-
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
-
-def load_config():
-    if not os.path.exists(CONFIG_FILE):
-        return {"PLEX_TOKEN": "", "PLEX_URL": "", "TMDB_API_KEY": ""}
-    with open(CONFIG_FILE, "r") as f:
-        return json.load(f)
-
-def save_config(config):
-    with open(CONFIG_FILE, "w") as f:
-        json.dump(config, f, indent=4)
-
 """
 This script uses:
 - The TMDb API (via TMDbSearch) to fetch movie titles by keyword or collection.
 - The PlexAPI to search for movies and create collections in the user's Plex library.
-- Optionally, scrapes Letterboxd lists for user-curated movie lists.
 """
+
+import os
+import json
+import re
+
+from dotenv import load_dotenv
+from colorama import init, Fore
+import emojis
+from plex_manager import PlexManager
+from tmdb_search import TMDbSearch
+from styling import print_plex_logo_ascii
+
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
+
+def load_config():
+    # Load credentials from config.json, or return empty defaults if it doesn't exist
+    if not os.path.exists(CONFIG_FILE):
+        return {"PLEX_TOKEN": "", "PLEX_URL": "", "TMDB_API_KEY": ""}
+    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_config(cfg):
+    # Save the current credentials to config.json for future use
+    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=4)
 
 init(autoreset=True)
 load_dotenv()
@@ -40,20 +39,22 @@ TMDB_API_KEY = config.get("TMDB_API_KEY")
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 
 def welcome():
-    from styling import print_plex_logo_ascii
+    """Display welcome message and Plex logo."""
     os.system("clear")  # Optional: clears terminal screen for cleanliness
     print_plex_logo_ascii()
     print(Fore.CYAN + "\n🎥 Welcome to the Plex Collection Builder!")
     print(Fore.YELLOW + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
 def check_credentials():
-    config = load_config()
+    """Check and display the status of the loaded credentials."""
+    current_config = load_config()
     print(Fore.GREEN + f"{emojis.KEY} Loaded environment variables:")
-    print(f"Plex Token: {emojis.CHECK if config.get('PLEX_TOKEN', '').strip() else emojis.CROSS}")
-    print(f"Plex URL: {emojis.CHECK if config.get('PLEX_URL', '').strip() else emojis.CROSS}")
-    print(f"TMDb API Key: {emojis.CHECK if config.get('TMDB_API_KEY', '').strip() else emojis.CROSS}\n")
+    print(f"Plex Token: {emojis.CHECK if current_config.get('PLEX_TOKEN', '').strip() else emojis.CROSS}")
+    print(f"Plex URL: {emojis.CHECK if current_config.get('PLEX_URL', '').strip() else emojis.CROSS}")
+    print(f"TMDb API Key: {emojis.CHECK if current_config.get('TMDB_API_KEY', '').strip() else emojis.CROSS}\n")
 
 def run_collection_builder():
+    """Main function to run the Plex collection builder interface."""
 
     def configure_credentials():
         while True:
@@ -107,6 +108,7 @@ def run_collection_builder():
                 print(Fore.RED + f"{emojis.CROSS} Missing or invalid Plex Token or URL.")
                 return
 
+            titles = []
             print("\nEnter movie titles one per line. Leave a blank line to finish:")
             while True:
                 title = input()
@@ -133,7 +135,7 @@ def run_collection_builder():
     }
 
     titles = []
-    KNOWN_COLLECTIONS = {
+    known_collections = {
         "Alien": 8091,
         "Back to the Future": 264,
         "Despicable Me": 86066,
@@ -162,7 +164,7 @@ def run_collection_builder():
 
     if mode == "2":
         fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
-        with open(fallback_titles_path, "r") as f:
+        with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_titles = json.load(f)
 
         if not tmdb:
@@ -184,22 +186,22 @@ def run_collection_builder():
             titles = franchises_data[matched_key]
         else:
             print("Available Collections:")
-            for collection in KNOWN_COLLECTIONS:
+            for collection in known_collections:
                 print(f"- {collection}")
             print("Type 'back' to return to the main menu.")
             collection_key = input("Type one: ").strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
-            if collection_key in [key.lower() for key in KNOWN_COLLECTIONS]:
-                matched_key = next((key for key in KNOWN_COLLECTIONS if key.lower() == collection_key), None)
-                collection_id = KNOWN_COLLECTIONS[matched_key]
+            if collection_key in [key.lower() for key in known_collections]:
+                matched_key = next((key for key in known_collections if key.lower() == collection_key), None)
+                collection_id = known_collections[matched_key]
                 titles = tmdb.get_movies_from_collection(collection_id)
             else:
                 print("Unknown collection.\n")
                 return run_collection_builder()
     elif mode == "3":
         fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
-        with open(fallback_titles_path, "r") as f:
+        with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_data = json.load(f)
 
         if not tmdb:
@@ -228,7 +230,6 @@ def run_collection_builder():
                 return
 
             import requests
-            from urllib.parse import quote
 
             def fetch_movies_by_company_or_keyword(api_key, company_id=None, keyword_id=None):
                 url = "https://api.themoviedb.org/3/discover/movie"
@@ -245,7 +246,7 @@ def run_collection_builder():
 
                 all_titles = []
                 while True:
-                    response = requests.get(url, params=params)
+                    response = requests.get(url, params=params, timeout=10)
                     if response.status_code != 200:
                         print("Failed to fetch movies.")
                         break
@@ -288,11 +289,9 @@ def run_collection_builder():
     try:
         plex = PlexManager(plex_token, plex_url)
         library = plex.plex.library.section("Movies")
-    except Exception as e:
+    except (AttributeError, ValueError, RuntimeError, ConnectionError) as e:
         print(Fore.RED + f"{emojis.CROSS} Could not connect to Plex: {e}")
         return
-
-    import re
 
     def extract_title_and_year(raw_title):
         match = re.match(r"^(.*?)(?:\s+\((\d{4})\))?$", raw_title.strip())
@@ -320,7 +319,7 @@ def run_collection_builder():
                         continue
                 not_found.append(raw_title)
 
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             print(f"Error searching for '{raw_title}': {e}")
             not_found.append(raw_title)
 
