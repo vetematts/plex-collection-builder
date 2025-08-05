@@ -47,10 +47,11 @@ def welcome():
     print(Fore.YELLOW + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
 def check_credentials():
+    config = load_config()
     print(Fore.GREEN + f"{emojis.KEY} Loaded environment variables:")
-    print(f"Plex Token: {emojis.CHECK if PLEX_TOKEN else emojis.CROSS}")
-    print(f"Plex URL: {PLEX_URL}")
-    print(f"TMDb API Key: {emojis.CHECK if TMDB_API_KEY else emojis.CROSS}\n")
+    print(f"Plex Token: {emojis.CHECK if config.get('PLEX_TOKEN', '').strip() else emojis.CROSS}")
+    print(f"Plex URL: {emojis.CHECK if config.get('PLEX_URL', '').strip() else emojis.CROSS}")
+    print(f"TMDb API Key: {emojis.CHECK if config.get('TMDB_API_KEY', '').strip() else emojis.CROSS}\n")
 
 def run_collection_builder():
 
@@ -85,25 +86,46 @@ def run_collection_builder():
     while True:
         welcome()
         check_credentials()
-        print(Fore.BLUE + "🎬 MENU OPTIONS:\n")
-        print("1. 🎛️  Configure Credentials (Plex / TMDb)")
-        print("2. 🎞️  Known Collection (e.g. Star Wars, Harry Potter)")
-        print("3. 🏷️  Studio / Keyword Collection (e.g. A24, Pixar)")
-        print("4. 📝 Manual Title Entry")
-        print(Fore.RED + "5. ❌ Exit\n")
-        print("Enter a number (1-5) to continue:")
+        print(Fore.BLUE + "🎬 MAIN MENU:\n")
+        print(Fore.GREEN + "1." + Fore.RESET + " 📝 Manual Entry\n")
+        print(Fore.GREEN + "2." + Fore.RESET + " 🎞️ Known Franchise (e.g. Star Wars, Harry Potter)\n")
+        print(Fore.GREEN + "3." + Fore.RESET + " 🏷️ Studio / Keyword (e.g. A24, Pixar)\n")
+        print(Fore.YELLOW + "4." + Fore.RESET + " 🎛️ Configure Credentials (Plex / TMDb)\n")
+        print(Fore.RED + "5." + Fore.RESET + " ❌ Exit\n")
+        print(Fore.LIGHTBLACK_EX + "ℹ️  You can return to this menu after each collection is created.\n")
         mode = input().strip()
 
         if mode == "1":
-            configure_credentials()
-            continue
+            print("Type 'back' to return to the main menu.")
+            print("Enter a name for your new collection:")
+            collection_name = input("> ").strip()
+            if collection_name.lower() == "back":
+                return run_collection_builder()
+
+            print("\nEnter movie titles one per line. Leave a blank line to finish:")
+            while True:
+                title = input()
+                if not title.strip():
+                    break
+                titles.append(title.strip())
         elif mode == "5":
             print("👋 Goodbye!")
             return
+        elif mode == "4":
+            configure_credentials()
+            return run_collection_builder()
         else:
             break
 
     tmdb = TMDbSearch(config.get("TMDB_API_KEY")) if config.get("TMDB_API_KEY") else None
+
+    studio_map = {
+        "a24": {"company": 41077},
+        "pixar": {"company": 3},
+        "studio ghibli": {"company": 10342},
+        "mcu": {"keyword": 180547},
+        "dceu": {"keyword": 229266}
+    }
 
     titles = []
     KNOWN_COLLECTIONS = {
@@ -134,164 +156,107 @@ def run_collection_builder():
     }
 
     if mode == "2":
-        fallback_titles = {
-            "\nStar Wars\n": [
-                "Star Wars",
-                "Star Wars: Episode V - The Empire Strikes Back",
-                "Star Wars: Episode VI - Return of the Jedi",
-                "Star Wars: Episode I - The Phantom Menace",
-                "Star Wars: Episode II - Attack of the Clones",
-                "Star Wars: Episode III - Revenge of the Sith",
-                "Star Wars: Episode VII - The Force Awakens",
-                "Star Wars: Episode VIII - The Last Jedi"
-                "Star Wars: The Rise Of Skywalker"
-            ],
-            "Harry Potter\n": [
-                "Harry Potter and the Philosopher's Stone",
-                "Harry Potter and the Chamber of Secrets",
-                "Harry Potter and the Prisoner of Azkaban",
-                "Harry Potter and the Goblet of Fire",
-                "Harry Potter and the Order of the Phoenix",
-                "Harry Potter and the Half-Blood Prince",
-                "Harry Potter and the Deathly Hallows: Part 1",
-                "Harry Potter and the Deathly Hallows: Part 2"
-            ],
-            "The Dark Knight\n": [
-                "Batman Begins",
-                "The Dark Knight",
-                "The Dark Knight Rises"
-            ],
-            "The Lord of the Rings\n": [
-                "The Lord of the Rings: The Fellowship of the Ring",
-                "The Lord of the Rings: The Two Towers",
-                "The Lord of the Rings: The Return of the King"
-            ]
-            # Add more collections here as needed...
-        }
+        fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
+        with open(fallback_titles_path, "r") as f:
+            fallback_titles = json.load(f)
 
         if not tmdb:
-            print("TMDb API key not provided. Using fallback hardcoded titles.")
-            print("Available fallback collections:", ", ".join(fallback_titles.keys()))
+            print("TMDb API key not provided. Using fallback hardcoded titles.\n")
+
+            franchises_data = fallback_titles.get("Franchises", {})
+            print("Available Franchises:")
+            for franchise in franchises_data.keys():
+                print(f"- {franchise}")
+
             print("Type 'back' to return to the main menu.")
-            collection_key = input("Type one: ").strip()
+            collection_key = input("Type one: ").strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
-            titles = fallback_titles.get(collection_key, [])
-            if not titles:
+            if collection_key not in [key.lower() for key in franchises_data]:
                 print("Unknown collection.")
-                return
+                return run_collection_builder()
+            matched_key = next((key for key in franchises_data if key.lower() == collection_key), None)
+            titles = franchises_data[matched_key]
         else:
-            print("Available collections:")
+            print("Available Collections:")
             for collection in KNOWN_COLLECTIONS:
                 print(f"- {collection}")
             print("Type 'back' to return to the main menu.")
-            collection_key = input("Type one: ").strip()
+            collection_key = input("Type one: ").strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
-            if collection_key in KNOWN_COLLECTIONS:
-                collection_id = KNOWN_COLLECTIONS[collection_key]
+            if collection_key in [key.lower() for key in KNOWN_COLLECTIONS]:
+                matched_key = next((key for key in KNOWN_COLLECTIONS if key.lower() == collection_key), None)
+                collection_id = KNOWN_COLLECTIONS[matched_key]
                 titles = tmdb.get_movies_from_collection(collection_id)
             else:
-                print("Unknown collection.")
-                return
+                print("Unknown collection.\n")
+                return run_collection_builder()
     elif mode == "3":
+        fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
+        with open(fallback_titles_path, "r") as f:
+            fallback_data = json.load(f)
+
         if not tmdb:
-            print("TMDb API key not provided. Using fallback hardcoded titles.")
-        print("Available options: \nA24\n, Pixar\n, Studio Ghibli\n, MCU\n, DCEU\n")
+            print("TMDb API key not provided. Using fallback hardcoded titles.\n")
+            print("Available Studios:")
+            for studio in fallback_data.get("Studios", {}):
+                print(f"- {studio}")
+        else:
+            print("Available Studios:")
+            for studio in ["A24", "Pixar", "Studio Ghibli", "MCU", "DCEU"]:
+                print(f"- {studio}")
         print("Type 'back' to return to the main menu.")
         studio_key = input("Choose one: ").strip().lower()
         if studio_key == "back":
             return run_collection_builder()
-        studio_map = {
-            "a24": {"company": 41077},
-            "pixar": {"company": 3},
-            "studio ghibli": {"company": 10342},
-            "mcu": {"keyword": 180547},
-            "dceu": {"keyword": 229266}
-        }
 
-        if studio_key not in studio_map:
-            print("Unknown option.")
-            return
+        if not tmdb:
+            if studio_key not in [key.lower() for key in fallback_data.get("Studios", {})]:
+                print("Unknown option.")
+                return
+            matched_key = next((key for key in fallback_data.get("Studios", {}) if key.lower() == studio_key), None)
+            titles = fallback_data.get("Studios", {}).get(matched_key, [])
+        else:
+            if studio_key not in studio_map:
+                print("Unknown option.")
+                return
 
-        import requests
-        from urllib.parse import quote
+            import requests
+            from urllib.parse import quote
 
-        def fetch_movies_by_company_or_keyword(api_key, company_id=None, keyword_id=None):
-            url = "https://api.themoviedb.org/3/discover/movie"
-            params = {
-                "api_key": api_key,
-                "language": "en-US",
-                "sort_by": "popularity.desc",
-                "page": 1
-            }
-            if company_id:
-                params["with_companies"] = company_id
-            if keyword_id:
-                params["with_keywords"] = keyword_id
+            def fetch_movies_by_company_or_keyword(api_key, company_id=None, keyword_id=None):
+                url = "https://api.themoviedb.org/3/discover/movie"
+                params = {
+                    "api_key": api_key,
+                    "language": "en-US",
+                    "sort_by": "popularity.desc",
+                    "page": 1
+                }
+                if company_id:
+                    params["with_companies"] = company_id
+                if keyword_id:
+                    params["with_keywords"] = keyword_id
 
-            all_titles = []
-            while True:
-                response = requests.get(url, params=params)
-                if response.status_code != 200:
-                    print("Failed to fetch movies.")
-                    break
-                data = response.json()
-                all_titles.extend([movie["title"] for movie in data["results"]])
-                if data["page"] >= data["total_pages"]:
-                    break
-                params["page"] += 1
-            return all_titles
+                all_titles = []
+                while True:
+                    response = requests.get(url, params=params)
+                    if response.status_code != 200:
+                        print("Failed to fetch movies.")
+                        break
+                    data = response.json()
+                    all_titles.extend([movie["title"] for movie in data["results"]])
+                    if data["page"] >= data["total_pages"]:
+                        break
+                    params["page"] += 1
+                return all_titles
 
-        studio_info = studio_map[studio_key]
-        if tmdb:
+            studio_info = studio_map[studio_key]
             titles = fetch_movies_by_company_or_keyword(
                 config.get("TMDB_API_KEY"),
                 company_id=studio_info.get("company"),
                 keyword_id=studio_info.get("keyword")
             )
-        else:
-            fallback_studios = {
-                "a24": [
-                    "Hereditary", "Midsommar", "The Lighthouse", "Uncut Gems",
-                    "Lady Bird", "Moonlight", "The Green Knight", "X",
-                    "Everything Everywhere All at Once", "Aftersun"
-                ],
-                "pixar": [
-                    "Toy Story", "Finding Nemo", "The Incredibles", "Ratatouille",
-                    "Up", "Inside Out", "Coco", "Soul", "Luca", "Turning Red"
-                ],
-                "studio ghibli": [
-                    "My Neighbor Totoro", "Spirited Away", "Princess Mononoke",
-                    "Howl's Moving Castle", "Nausicaä of the Valley of the Wind",
-                    "Kiki's Delivery Service", "Ponyo", "The Wind Rises",
-                    "The Tale of the Princess Kaguya", "Earwig and the Witch"
-                ],
-                "mcu": [
-                    "Iron Man", "The Avengers", "Captain America: The Winter Soldier",
-                    "Guardians of the Galaxy", "Avengers: Age of Ultron", "Doctor Strange",
-                    "Black Panther", "Avengers: Infinity War", "Avengers: Endgame", "Spider-Man: No Way Home"
-                ],
-                "dceu": [
-                    "Man of Steel", "Batman v Superman: Dawn of Justice",
-                    "Suicide Squad", "Wonder Woman", "Justice League",
-                    "Aquaman", "Shazam!", "Birds of Prey", "The Suicide Squad", "Black Adam"
-                ]
-            }
-            titles = fallback_studios.get(studio_key, [])
-    elif mode == "4":
-        print("Type 'back' to return to the main menu.")
-        print("Enter a name for your new collection:")
-        collection_name = input("> ").strip()
-        if collection_name.lower() == "back":
-            return run_collection_builder()
-
-        print("\nEnter movie titles one per line. Leave a blank line to finish:")
-        while True:
-            title = input()
-            if not title.strip():
-                break
-            titles.append(title.strip())
 
     if mode in ("2", "3"):
         collection_name = input("Enter a name for your new collection: ").strip()
