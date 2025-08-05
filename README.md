@@ -3,8 +3,23 @@
 
 This is a custom Python application that helps users manage and organize their Plex movie libraries by building themed collections. Whether you're a fan of franchises like *Harry Potter* or studios like *A24*, this tool streamlines the process of grouping titles into collections.
 
+
 🔐 **Credentials Required**  
 On first run, you'll be prompted to enter your Plex Token, Plex URL, and optionally a TMDb API key. These credentials are stored securely in a local `config.json` file, which is excluded from version control for your privacy.
+
+---
+
+**📎 Finding Your Plex Token & URL**
+
+- **Plex Token**:  
+  1. Open [app.plex.tv](https://app.plex.tv) and sign in.  
+  2. Click any movie or show → ⋮ → **Get Info**  
+  3. Scroll down and click **View XML**  
+  4. In the browser address bar, find the part after `X-Plex-Token=`
+
+- **Plex URL**:  
+  - Go to your Plex Web App settings and copy the base URL (e.g. `http://192.168.0.5:32400`)  
+  - Make sure it matches the IP and port of your Plex Media Server on your network
 
 📦 **Why Use This?**  
 This app is designed for individuals who use Plex as a personal media server to catalog and enjoy their legally acquired digital media — including backups of physical media like DVDs and Blu-rays. It supports better curation, discoverability, and enjoyment of your existing library.
