@@ -5,21 +5,22 @@ This is a custom Python application that helps users manage and organize their P
 
 
 🔐 **Credentials Required**  
-On first run, you'll be prompted to enter your Plex Token, Plex URL, and optionally a TMDb API key. These credentials are stored securely in a local `config.json` file, which is excluded from version control for your privacy.
+On first run, you’ll need to manually enter your Plex Token, Plex URL, and optionally a TMDb API key via the **Configure Credentials** option in the main menu. These credentials are securely saved in a local config.json file, which is excluded from version control to protect your privacy.
 
 ---
 
 **📎 Finding Your Plex Token & URL**
 
-- **Plex Token**:  
-  1. Open [app.plex.tv](https://app.plex.tv) and sign in.  
-  2. Click any movie or show → ⋮ → **Get Info**  
-  3. Scroll down and click **View XML**  
-  4. In the browser address bar, find the part after `X-Plex-Token=`
+- **Plex Token:**  
+  1. Sign in at [app.plex.tv](https://app.plex.tv)  
+  2. Click on any movie/show → ⋮ → **Get Info**  
+  3. Click **View XML** at the bottom  
+  4. In the browser URL, copy the string after `X-Plex-Token=`
 
-- **Plex URL**:  
-  - Go to your Plex Web App settings and copy the base URL (e.g. `http://192.168.0.5:32400`)  
-  - Make sure it matches the IP and port of your Plex Media Server on your network
+- **Plex URL:**  
+  - Open Plex in your browser  
+  - Copy the base URL shown in the address bar (e.g. `http://192.168.0.x:32400`)  
+  - Ensure it matches the IP/port of your Plex Media Server on your network
 
 📦 **Why Use This?**  
 This app is designed for individuals who use Plex as a personal media server to catalog and enjoy their legally acquired digital media — including backups of physical media like DVDs and Blu-rays. It supports better curation, discoverability, and enjoyment of your existing library.
