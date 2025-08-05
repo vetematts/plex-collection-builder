@@ -18,6 +18,15 @@ This app is designed for individuals who use Plex as a personal media server to 
 🛠️ **Setup**
 1. Clone the repository.
 2. Ensure your Python environment is ready and install dependencies from `requirements.txt`.
+
+```bash
+pip install -r requirements.txt
+```
+
 3. Run `main.py` and follow the prompts.
+
+```bash
+python main.py
+```
 
 This project was developed as part of a software development assignment and is intended for educational and personal use only.
