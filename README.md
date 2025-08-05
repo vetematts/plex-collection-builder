@@ -12,15 +12,15 @@ On first run, you’ll need to manually enter your Plex Token, Plex URL, and opt
 **📎 Finding Your Plex Token & URL**
 
 - **Plex Token:**  
-  1. Sign in at [app.plex.tv](https://app.plex.tv)  
-  2. Click on any movie/show → ⋮ → **Get Info**  
-  3. Click **View XML** at the bottom  
-  4. In the browser URL, copy the string after `X-Plex-Token=`
+1. Sign in at [app.plex.tv](https://app.plex.tv)  
+2. Click on any Movie/Show → ⋮ → **Get Info**  
+3. Click **View XML** at the bottom  
+4. In the browser URL, copy the string after `X-Plex-Token=`
 
 - **Plex URL:**  
-  - Open Plex in your browser  
-  - Copy the base URL shown in the address bar (e.g. `http://192.168.0.x:32400`)  
-  - Ensure it matches the IP/port of your Plex Media Server on your network
+- Open Plex in your browser  
+- Copy the base URL shown in the address bar (e.g. `http://192.168.0.x:32400`)  
+- Ensure it matches the IP/port of your Plex Media Server on your network
 
 📦 **Why Use This?**  
 This app is designed for individuals who use Plex as a personal media server to catalog and enjoy their legally acquired digital media — including backups of physical media like DVDs and Blu-rays. It supports better curation, discoverability, and enjoyment of your existing library.
