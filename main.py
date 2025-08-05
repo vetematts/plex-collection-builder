@@ -101,6 +101,11 @@ def run_collection_builder():
             collection_name = input("> ").strip()
             if collection_name.lower() == "back":
                 return run_collection_builder()
+            plex_token = config.get("PLEX_TOKEN")
+            plex_url = config.get("PLEX_URL")
+            if not plex_token or not plex_url:
+                print(Fore.RED + f"{emojis.CROSS} Missing or invalid Plex Token or URL.")
+                return
 
             print("\nEnter movie titles one per line. Leave a blank line to finish:")
             while True:
@@ -273,8 +278,19 @@ def run_collection_builder():
         print(f"Finished. Would create collection with {len(titles)} movies.")
         return
 
-    plex = PlexManager(config.get("PLEX_TOKEN"), config.get("PLEX_URL"))
-    library = plex.plex.library.section("Movies")
+    plex_token = config.get("PLEX_TOKEN")
+    plex_url = config.get("PLEX_URL")
+
+    if not plex_token or not plex_url:
+        print(Fore.RED + f"{emojis.CROSS} Missing or invalid Plex Token or URL.")
+        return
+
+    try:
+        plex = PlexManager(plex_token, plex_url)
+        library = plex.plex.library.section("Movies")
+    except Exception as e:
+        print(Fore.RED + f"{emojis.CROSS} Could not connect to Plex: {e}")
+        return
 
     import re
 
