@@ -17,6 +17,7 @@ from styling import print_plex_logo_ascii
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 
+
 def load_config():
     # Load credentials from config.json, or return empty defaults if it doesn't exist
     if not os.path.exists(CONFIG_FILE):
@@ -24,11 +25,13 @@ def load_config():
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def save_config(cfg):
     # Save the current credentials to config.json for future use
     # Accepts a dictionary of credentials.
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=4)
+
 
 init(autoreset=True)
 load_dotenv()
@@ -39,21 +42,30 @@ PLEX_URL = config.get("PLEX_URL")
 TMDB_API_KEY = config.get("TMDB_API_KEY")
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 
+
 def welcome():
     # Display welcome message and Plex logo.
     os.system("clear")  # Optional: clears terminal screen for cleanliness
     print_plex_logo_ascii()
-    print(Fore.CYAN + "\n🎥 Welcome to the Plex Collection Builder!")
+    print(Fore.CYAN + f"\n{emojis.MOVIE} Welcome to the Plex Collection Builder!")
     print(Fore.YELLOW + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+
 
 def check_credentials():
     # Check and display the status of the loaded credentials.
     # Shows which credentials are set using color and emoji indicators.
     current_config = load_config()
-    print(Fore.GREEN + f"{emojis.KEY} Loaded environment variables:")
-    print(f"Plex Token: {emojis.CHECK if current_config.get('PLEX_TOKEN', '').strip() else emojis.CROSS}")
-    print(f"Plex URL: {emojis.CHECK if current_config.get('PLEX_URL', '').strip() else emojis.CROSS}")
-    print(f"TMDb API Key: {emojis.CHECK if current_config.get('TMDB_API_KEY', '').strip() else emojis.CROSS}\n")
+    print(Fore.GREEN + f"{emojis.KEY} Loaded Credentials:")
+    print(
+        f"Plex Token: {emojis.CHECK if current_config.get('PLEX_TOKEN', '').strip() else emojis.CROSS}"
+    )
+    print(
+        f"Plex URL: {emojis.CHECK if current_config.get('PLEX_URL', '').strip() else emojis.CROSS}"
+    )
+    print(
+        f"TMDb API Key: {emojis.CHECK if current_config.get('TMDB_API_KEY', '').strip() else emojis.CROSS}\n"
+    )
+
 
 def run_collection_builder():
     # Main function to run the Plex collection builder interface.
@@ -68,22 +80,31 @@ def run_collection_builder():
             print(Fore.GREEN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
             print(Fore.YELLOW + "1." + Fore.RESET + f" {emojis.KEY} Set Plex Token\n")
             print(Fore.YELLOW + "2." + Fore.RESET + f" {emojis.URL} Set Plex URL\n")
-            print(Fore.BLUE + "3." + Fore.RESET + f" {emojis.CLAPPER} Set TMDb API Key\n")
-            print(Fore.GREEN + "4." + Fore.RESET + f" {emojis.BOOK} Show current values\n")
-            print(Fore.RED + "5." + Fore.RESET + f" {emojis.BACK} Return to main menu\n")
+            print(
+                Fore.BLUE + "3." + Fore.RESET + f" {emojis.CLAPPER} Set TMDb API Key\n"
+            )
+            print(
+                Fore.GREEN + "4." + Fore.RESET + f" {emojis.BOOK} Show current values\n"
+            )
+            print(
+                Fore.RED + "5." + Fore.RESET + f" {emojis.BACK} Return to main menu\n"
+            )
             choice = input("Select an option: ").strip()
             if choice == "1":
                 config["PLEX_TOKEN"] = input("Enter new Plex Token: ").strip()
                 save_config(config)
-                print("Plex Token updated.")
+                print(Fore.GREEN + f"{emojis.CHECK} Plex Token saved successfully!\n")
+                input("Press Enter to return to the credentials menu...")
             elif choice == "2":
                 config["PLEX_URL"] = input("Enter new Plex URL: ").strip()
                 save_config(config)
-                print("Plex URL updated.")
+                print(Fore.GREEN + f"{emojis.CHECK} Plex URL saved successfully!\n")
+                input("Press Enter to return to the credentials menu...")
             elif choice == "3":
                 config["TMDB_API_KEY"] = input("Enter new TMDb API Key: ").strip()
                 save_config(config)
-                print("TMDb API Key updated.")
+                print(Fore.GREEN + f"{emojis.CHECK} TMDb API Key saved successfully!\n")
+                input("Press Enter to return to the credentials menu...")
             elif choice == "4":
                 os.system("clear")
                 print(Fore.CYAN + f"{emojis.BOOK} Current Configuration:\n")
@@ -97,13 +118,31 @@ def run_collection_builder():
     while True:
         welcome()
         check_credentials()
-        print(Fore.BLUE + "🎬 MAIN MENU:\n")
+        print(Fore.BLUE + f"{emojis.CLAPPER} MAIN MENU:\n")
         print(Fore.GREEN + "1." + Fore.RESET + f" {emojis.MANUAL} Manual Entry\n")
-        print(Fore.GREEN + "2." + Fore.RESET + f" {emojis.FRANCHISE} Known Franchise (e.g. Star Wars, Harry Potter)\n")
-        print(Fore.GREEN + "3." + Fore.RESET + f" {emojis.STUDIO} Studio / Keyword (e.g. A24, Pixar)\n")
-        print(Fore.YELLOW + "4." + Fore.RESET + f" {emojis.SETTINGS} Configure Credentials (Plex / TMDb)\n")
+        print(
+            Fore.GREEN
+            + "2."
+            + Fore.RESET
+            + f" {emojis.FRANCHISE}  Known Franchise (e.g. Star Wars, Harry Potter)\n"
+        )
+        print(
+            Fore.GREEN
+            + "3."
+            + Fore.RESET
+            + f" {emojis.STUDIO}  Studio / Keyword (e.g. A24, Pixar)\n"
+        )
+        print(
+            Fore.YELLOW
+            + "4."
+            + Fore.RESET
+            + f" {emojis.SETTINGS}  Configure Credentials (Plex / TMDb)\n"
+        )
         print(Fore.RED + "5." + Fore.RESET + f" {emojis.EXIT} Exit\n")
-        print(Fore.LIGHTBLACK_EX + f"{emojis.INFO}  You can return to this menu after each collection is created.\n")
+        print(
+            Fore.LIGHTBLACK_EX
+            + f"{emojis.INFO} You can return to this menu after each collection is created.\n"
+        )
         mode = input().strip()
 
         if mode not in ("1", "2", "3", "4", "5"):
@@ -121,7 +160,9 @@ def run_collection_builder():
             plex_token = config.get("PLEX_TOKEN")
             plex_url = config.get("PLEX_URL")
             if not plex_token or not plex_url:
-                print(Fore.RED + f"{emojis.CROSS} Missing or invalid Plex Token or URL.")
+                print(
+                    Fore.RED + f"{emojis.CROSS} Missing or invalid Plex Token or URL."
+                )
                 return
 
             titles = []
@@ -133,7 +174,7 @@ def run_collection_builder():
                 titles.append(title.strip())
         elif mode == "5":
             # Exit the application.
-            print("👋 Goodbye!")
+            print(f"{emojis.WAVE} Goodbye!")
             return
         elif mode == "4":
             # Configure credentials menu.
@@ -142,14 +183,16 @@ def run_collection_builder():
         else:
             break
 
-    tmdb = TMDbSearch(config.get("TMDB_API_KEY")) if config.get("TMDB_API_KEY") else None
+    tmdb = (
+        TMDbSearch(config.get("TMDB_API_KEY")) if config.get("TMDB_API_KEY") else None
+    )
 
     studio_map = {
         "a24": {"company": 41077},
         "pixar": {"company": 3},
         "studio ghibli": {"company": 10342},
         "mcu": {"keyword": 180547},
-        "dceu": {"keyword": 229266}
+        "dceu": {"keyword": 229266},
     }
 
     titles = []
@@ -177,50 +220,68 @@ def run_collection_builder():
         "Star Trek": 115575,
         "Star Wars": 10,
         "The Dark Knight": 263,
-        "The Twilight Saga": 33514
+        "The Twilight Saga": 33514,
     }
 
     if mode == "2":
         # Franchise mode: user selects a known franchise to build a collection.
-        fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
+        fallback_titles_path = os.path.join(
+            os.path.dirname(__file__), "fallback_collections.json"
+        )
         with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_titles = json.load(f)
 
         if not tmdb:
-            print(Fore.RED + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n")
-            print(Fore.CYAN + "🎞 Available Franchises:")
+            print(
+                Fore.RED
+                + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n"
+            )
+            print(Fore.CYAN + f"{emojis.FRANCHISE}  Available Franchises:")
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
             franchises_data = fallback_titles.get("Franchises", {})
             for franchise in sorted(franchises_data.keys()):
                 print(f"- {franchise}")
 
-            print("\n" + Fore.LIGHTBLACK_EX + "🔁 Type the franchise name (or 'back' to return):")
+            print(
+                "\n"
+                + Fore.LIGHTBLACK_EX
+                + f"{emojis.REPEAT} Type the franchise name (or 'back' to return):"
+            )
             collection_key = input("Type one: ").strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
             if collection_key not in [key.lower() for key in franchises_data]:
                 print("Unknown collection.")
                 return run_collection_builder()
-            matched_key = next((key for key in franchises_data if key.lower() == collection_key), None)
+            matched_key = next(
+                (key for key in franchises_data if key.lower() == collection_key), None
+            )
             titles = franchises_data[matched_key]
         else:
 
             def print_collection_list(collections, columns=3, padding=28):
                 names = sorted(collections)
-                rows = [names[i:i+columns] for i in range(0, len(names), columns)]
+                rows = [names[i : i + columns] for i in range(0, len(names), columns)]
                 for row in rows:
                     print("".join(name.ljust(padding) for name in row))
 
-            print(Fore.CYAN + "🎞 Available Collections (TMDb):")
+            print(Fore.CYAN + f"{emojis.FRANCHISE}  Available Collections (TMDb):")
             print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
             print_collection_list(known_collections.keys())
-            print("\n" + Fore.LIGHTBLACK_EX + "🔁 Type the collection name (or 'back' to return):")
+            print(
+                "\n"
+                + Fore.LIGHTBLACK_EX
+                + f"{emojis.REPEAT} Type the collection name (or 'back' to return):"
+            )
             collection_key = input().strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
             if collection_key in [key.lower() for key in known_collections]:
-                matched_key = next((key for key in known_collections if key.lower() == collection_key), None)
+                matched_key = next(
+                    (key for key in known_collections if key.lower() == collection_key),
+                    None,
+                )
                 collection_id = known_collections[matched_key]
                 titles = tmdb.get_movies_from_collection(collection_id)
             else:
@@ -228,35 +289,52 @@ def run_collection_builder():
                 return run_collection_builder()
     elif mode == "3":
         # Studio/keyword mode: user selects a studio or keyword to build a collection.
-        fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
+        fallback_titles_path = os.path.join(
+            os.path.dirname(__file__), "fallback_collections.json"
+        )
         with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_data = json.load(f)
 
-        # Insert warning if TMDb API key is not provided
-        if not tmdb:
-            print(Fore.RED + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n")
-
-
         def print_studio_list(studios, columns=3, padding=24):
             names = sorted(studios)
-            rows = [names[i:i+columns] for i in range(0, len(names), columns)]
+            rows = [names[i : i + columns] for i in range(0, len(names), columns)]
             for row in rows:
                 print("".join(name.ljust(padding) for name in row))
 
-        print(Fore.CYAN + f"{emojis.STUDIO} Available Studios:")
+        # Print TMDb API fallback warning if needed
+        if not tmdb:
+            print(
+                Fore.RED
+                + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n"
+            )
+
+        print(Fore.CYAN + f"{emojis.STUDIO}  Available Studios:")
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
         print_studio_list(["A24", "Pixar", "Studio Ghibli", "MCU", "DCEU"])
-        print("\n" + Fore.LIGHTBLACK_EX + f"{emojis.REPEAT} Type the studio name (or 'back' to return):")
+        print(
+            "\n"
+            + Fore.LIGHTBLACK_EX
+            + f"{emojis.REPEAT} Type the studio name (or 'back' to return):"
+        )
         print("Type 'back' to return to the main menu.")
         studio_key = input("Choose one: ").strip().lower()
         if studio_key == "back":
             return run_collection_builder()
 
         if not tmdb:
-            if studio_key not in [key.lower() for key in fallback_data.get("Studios", {})]:
+            if studio_key not in [
+                key.lower() for key in fallback_data.get("Studios", {})
+            ]:
                 print("Unknown option.")
                 return run_collection_builder()
-            matched_key = next((key for key in fallback_data.get("Studios", {}) if key.lower() == studio_key), None)
+            matched_key = next(
+                (
+                    key
+                    for key in fallback_data.get("Studios", {})
+                    if key.lower() == studio_key
+                ),
+                None,
+            )
             titles = fallback_data.get("Studios", {}).get(matched_key, [])
         else:
             if studio_key not in studio_map:
@@ -265,13 +343,15 @@ def run_collection_builder():
 
             import requests
 
-            def fetch_movies_by_company_or_keyword(api_key, company_id=None, keyword_id=None):
+            def fetch_movies_by_company_or_keyword(
+                api_key, company_id=None, keyword_id=None
+            ):
                 url = "https://api.themoviedb.org/3/discover/movie"
                 params = {
                     "api_key": api_key,
                     "language": "en-US",
                     "sort_by": "popularity.desc",
-                    "page": 1
+                    "page": 1,
                 }
                 if company_id:
                     params["with_companies"] = company_id
@@ -295,7 +375,7 @@ def run_collection_builder():
             titles = fetch_movies_by_company_or_keyword(
                 config.get("TMDB_API_KEY"),
                 company_id=studio_info.get("company"),
-                keyword_id=studio_info.get("keyword")
+                keyword_id=studio_info.get("keyword"),
             )
 
     if mode in ("2", "3"):
@@ -373,15 +453,22 @@ def run_collection_builder():
         print("\nMovies to add to collection:")
         for i, movie in enumerate(found_movies, 1):
             print(f"{i}. {movie.title}")
-        confirm = input("Proceed to create collection with these movies? (y/n): ").strip().lower()
-        if confirm != 'y':
+        confirm = (
+            input("Proceed to create collection with these movies? (y/n): ")
+            .strip()
+            .lower()
+        )
+        if confirm != "y":
             print("Aborted by user.")
             return
         library.createCollection(collection_name, items=found_movies)
-        print(f"\n{emojis.CHECK} Created collection '{collection_name}' with {len(found_movies)} movies.")
+        print(
+            f"\n{emojis.CHECK} Created collection '{collection_name}' with {len(found_movies)} movies."
+        )
         return run_collection_builder()
     else:
         print(f"{emojis.CROSS} No valid matches found — collection not created.")
+
 
 if __name__ == "__main__":
     # Entry point: start the interactive collection builder.
