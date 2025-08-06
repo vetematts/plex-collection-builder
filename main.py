@@ -59,20 +59,19 @@ def run_collection_builder():
     def configure_credentials():
         while True:
             os.system("clear")
-            print(Fore.CYAN + "🔧 CONFIGURE CREDENTIALS")
+            print(Fore.CYAN + f"{emojis.CONFIGURE} CONFIGURE CREDENTIALS")
             print(Fore.GREEN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
-            print(Fore.YELLOW + "1." + Fore.RESET + " 🔑 Set Plex Token\n")
-            print(Fore.YELLOW + "2." + Fore.RESET + " 🌐 Set Plex URL\n")
-            print(Fore.BLUE + "3." + Fore.RESET + " 🎬 Set TMDb API Key\n")
-            print(Fore.GREEN + "4." + Fore.RESET + " 📔 Show current values\n")
-            print(Fore.RED + "5." + Fore.RESET + " 🔙 Return to main menu\n")
+            print(Fore.YELLOW + "1." + Fore.RESET + f" {emojis.KEY} Set Plex Token\n")
+            print(Fore.YELLOW + "2." + Fore.RESET + f" {emojis.URL} Set Plex URL\n")
+            print(Fore.BLUE + "3." + Fore.RESET + f" {emojis.CLAPPER} Set TMDb API Key\n")
+            print(Fore.GREEN + "4." + Fore.RESET + f" {emojis.BOOK} Show current values\n")
+            print(Fore.RED + "5." + Fore.RESET + f" {emojis.BACK} Return to main menu\n")
             choice = input("Select an option: ").strip()
             if choice == "1":
                 config["PLEX_TOKEN"] = input("Enter new Plex Token: ").strip()
                 save_config(config)
                 print("Plex Token updated.")
             elif choice == "2":
-
                 config["PLEX_URL"] = input("Enter new Plex URL: ").strip()
                 save_config(config)
                 print("Plex URL updated.")
@@ -81,7 +80,10 @@ def run_collection_builder():
                 save_config(config)
                 print("TMDb API Key updated.")
             elif choice == "4":
+                os.system("clear")
+                print(Fore.CYAN + f"{emojis.BOOK} Current Configuration:\n")
                 print(json.dumps(config, indent=4))
+                input("\nPress Enter to return to the credentials menu...")
             elif choice == "5":
                 break
             else:
@@ -176,14 +178,15 @@ def run_collection_builder():
             fallback_titles = json.load(f)
 
         if not tmdb:
-            print("TMDb API key not provided. Using fallback hardcoded titles.\n")
+            print(Fore.RED + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n")
+            print(Fore.CYAN + "🎞 Available Franchises:")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
             franchises_data = fallback_titles.get("Franchises", {})
-            print("Available Franchises:")
-            for franchise in franchises_data.keys():
+            for franchise in sorted(franchises_data.keys()):
                 print(f"- {franchise}")
 
-            print("Type 'back' to return to the main menu.")
+            print("\n" + Fore.LIGHTBLACK_EX + "🔁 Type the franchise name (or 'back' to return):")
             collection_key = input("Type one: ").strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
@@ -193,11 +196,18 @@ def run_collection_builder():
             matched_key = next((key for key in franchises_data if key.lower() == collection_key), None)
             titles = franchises_data[matched_key]
         else:
-            print("Available Collections:")
-            for collection in known_collections:
-                print(f"- {collection}")
-            print("Type 'back' to return to the main menu.")
-            collection_key = input("Type one: ").strip().lower()
+
+            def print_collection_list(collections, columns=3, padding=28):
+                names = sorted(collections)
+                rows = [names[i:i+columns] for i in range(0, len(names), columns)]
+                for row in rows:
+                    print("".join(name.ljust(padding) for name in row))
+
+            print(Fore.CYAN + "🎞 Available Collections (TMDb):")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+            print_collection_list(known_collections.keys())
+            print("\n" + Fore.LIGHTBLACK_EX + "🔁 Type the collection name (or 'back' to return):")
+            collection_key = input().strip().lower()
             if collection_key.lower() == "back":
                 return run_collection_builder()
             if collection_key in [key.lower() for key in known_collections]:
@@ -212,15 +222,22 @@ def run_collection_builder():
         with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_data = json.load(f)
 
+        # Insert warning if TMDb API key is not provided
         if not tmdb:
-            print("TMDb API key not provided. Using fallback hardcoded titles.\n")
-            print("Available Studios:")
-            for studio in fallback_data.get("Studios", {}):
-                print(f"- {studio}")
-        else:
-            print("Available Studios:")
-            for studio in ["A24", "Pixar", "Studio Ghibli", "MCU", "DCEU"]:
-                print(f"- {studio}")
+            print(Fore.RED + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n")
+
+        from textwrap import wrap
+
+        def print_studio_list(studios, columns=3, padding=24):
+            names = sorted(studios)
+            rows = [names[i:i+columns] for i in range(0, len(names), columns)]
+            for row in rows:
+                print("".join(name.ljust(padding) for name in row))
+
+        print(Fore.CYAN + f"{emojis.STUDIO} Available Studios:")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+        print_studio_list(["A24", "Pixar", "Studio Ghibli", "MCU", "DCEU"])
+        print("\n" + Fore.LIGHTBLACK_EX + f"{emojis.REPEAT} Type the studio name (or 'back' to return):")
         print("Type 'back' to return to the main menu.")
         studio_key = input("Choose one: ").strip().lower()
         if studio_key == "back":
