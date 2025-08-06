@@ -289,9 +289,10 @@ def run_collection_builder():
     try:
         plex = PlexManager(plex_token, plex_url)
         library = plex.plex.library.section("Movies")
-    except (AttributeError, ValueError, RuntimeError, ConnectionError) as e:
-        print(Fore.RED + f"{emojis.CROSS} Could not connect to Plex: {e}")
-        return
+    except Exception:
+        print(Fore.RED + f"{emojis.CROSS} Could not connect to Plex.")
+        print("Please make sure your Plex Token and URL are correct.\n")
+        return run_collection_builder()
 
     def extract_title_and_year(raw_title):
         match = re.match(r"^(.*?)(?:\s+\((\d{4})\))?$", raw_title.strip())
