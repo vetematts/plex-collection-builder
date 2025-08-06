@@ -26,6 +26,7 @@ def load_config():
 
 def save_config(cfg):
     # Save the current credentials to config.json for future use
+    # Accepts a dictionary of credentials.
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=4)
 
@@ -39,14 +40,15 @@ TMDB_API_KEY = config.get("TMDB_API_KEY")
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
 
 def welcome():
-    """Display welcome message and Plex logo."""
+    # Display welcome message and Plex logo.
     os.system("clear")  # Optional: clears terminal screen for cleanliness
     print_plex_logo_ascii()
     print(Fore.CYAN + "\n🎥 Welcome to the Plex Collection Builder!")
     print(Fore.YELLOW + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
 
 def check_credentials():
-    """Check and display the status of the loaded credentials."""
+    # Check and display the status of the loaded credentials.
+    # Shows which credentials are set using color and emoji indicators.
     current_config = load_config()
     print(Fore.GREEN + f"{emojis.KEY} Loaded environment variables:")
     print(f"Plex Token: {emojis.CHECK if current_config.get('PLEX_TOKEN', '').strip() else emojis.CROSS}")
@@ -54,9 +56,12 @@ def check_credentials():
     print(f"TMDb API Key: {emojis.CHECK if current_config.get('TMDB_API_KEY', '').strip() else emojis.CROSS}\n")
 
 def run_collection_builder():
-    """Main function to run the Plex collection builder interface."""
+    # Main function to run the Plex collection builder interface.
+    # Handles user interaction, menu navigation, and collection creation.
 
     def configure_credentials():
+        # Interactive menu for setting and viewing Plex/TMDb credentials.
+        # Allows user to update or review credentials, with clear prompts.
         while True:
             os.system("clear")
             print(Fore.CYAN + f"{emojis.CONFIGURE} CONFIGURE CREDENTIALS")
@@ -107,6 +112,7 @@ def run_collection_builder():
             continue
 
         if mode == "1":
+            # Manual entry mode: user types movie titles for a new collection.
             print("Type 'back' to return to the main menu.")
             print("Enter a name for your new collection:")
             collection_name = input("> ").strip()
@@ -126,9 +132,11 @@ def run_collection_builder():
                     break
                 titles.append(title.strip())
         elif mode == "5":
+            # Exit the application.
             print("👋 Goodbye!")
             return
         elif mode == "4":
+            # Configure credentials menu.
             configure_credentials()
             return run_collection_builder()
         else:
@@ -173,6 +181,7 @@ def run_collection_builder():
     }
 
     if mode == "2":
+        # Franchise mode: user selects a known franchise to build a collection.
         fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
         with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_titles = json.load(f)
@@ -218,6 +227,7 @@ def run_collection_builder():
                 print("Unknown collection.\n")
                 return run_collection_builder()
     elif mode == "3":
+        # Studio/keyword mode: user selects a studio or keyword to build a collection.
         fallback_titles_path = os.path.join(os.path.dirname(__file__), "fallback_collections.json")
         with open(fallback_titles_path, "r", encoding="utf-8") as f:
             fallback_data = json.load(f)
@@ -226,7 +236,6 @@ def run_collection_builder():
         if not tmdb:
             print(Fore.RED + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n")
 
-        from textwrap import wrap
 
         def print_studio_list(studios, columns=3, padding=24):
             names = sorted(studios)
@@ -290,6 +299,7 @@ def run_collection_builder():
             )
 
     if mode in ("2", "3"):
+        # Prompt for collection name after franchise/studio selection.
         collection_name = input("Enter a name for your new collection: ").strip()
 
     if not titles:
@@ -297,6 +307,7 @@ def run_collection_builder():
         return
 
     if MOCK_MODE:
+        # Mock mode: simulate Plex actions for testing.
         print("[MOCK MODE ENABLED]")
         print(f"Simulating search in Plex for {len(titles)} titles...")
         for title in titles:
@@ -320,6 +331,8 @@ def run_collection_builder():
         return run_collection_builder()
 
     def extract_title_and_year(raw_title):
+        # Extracts the movie title and year from a string.
+        # Returns (title, year) tuple. Year is optional.
         match = re.match(r"^(.*?)(?:\s+\((\d{4})\))?$", raw_title.strip())
         return (match.group(1).strip(), int(match.group(2)) if match.group(2) else None)
 
@@ -327,6 +340,7 @@ def run_collection_builder():
     not_found = []
 
     for raw_title in titles:
+        # Search for each movie in Plex, using year if available.
         title, year = extract_title_and_year(raw_title)
 
         try:
@@ -370,4 +384,5 @@ def run_collection_builder():
         print(f"{emojis.CROSS} No valid matches found — collection not created.")
 
 if __name__ == "__main__":
+    # Entry point: start the interactive collection builder.
     run_collection_builder()

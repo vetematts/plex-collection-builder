@@ -1,5 +1,3 @@
-# tmdb_search.py
-
 from tmdbv3api import TMDb, Search, Collection
 
 class TMDbSearch:

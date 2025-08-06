@@ -1,4 +1,4 @@
-# emojis.py
+
 
 MOVIE = "\U0001F3A5"        # 🎥
 CHECK = "\u2705"            # ✅

@@ -1,5 +1,3 @@
-# plex_manager.py
-
 from plexapi.server import PlexServer
 
 class PlexManager:
