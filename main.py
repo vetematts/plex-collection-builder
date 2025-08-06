@@ -58,18 +58,21 @@ def run_collection_builder():
 
     def configure_credentials():
         while True:
-            print("\nConfigure Credentials\n")
-            print("1. Set Plex Token")
-            print("2. Set Plex URL")
-            print("3. Set TMDb API Key")
-            print("4. Show current values")
-            print("5. Return to main menu")
+            os.system("clear")
+            print(Fore.CYAN + "🔧 CONFIGURE CREDENTIALS")
+            print(Fore.GREEN + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+            print(Fore.YELLOW + "1." + Fore.RESET + " 🔑 Set Plex Token\n")
+            print(Fore.YELLOW + "2." + Fore.RESET + " 🌐 Set Plex URL\n")
+            print(Fore.BLUE + "3." + Fore.RESET + " 🎬 Set TMDb API Key\n")
+            print(Fore.GREEN + "4." + Fore.RESET + " 📔 Show current values\n")
+            print(Fore.RED + "5." + Fore.RESET + " 🔙 Return to main menu\n")
             choice = input("Select an option: ").strip()
             if choice == "1":
                 config["PLEX_TOKEN"] = input("Enter new Plex Token: ").strip()
                 save_config(config)
                 print("Plex Token updated.")
             elif choice == "2":
+
                 config["PLEX_URL"] = input("Enter new Plex URL: ").strip()
                 save_config(config)
                 print("Plex URL updated.")
@@ -88,13 +91,18 @@ def run_collection_builder():
         welcome()
         check_credentials()
         print(Fore.BLUE + "🎬 MAIN MENU:\n")
-        print(Fore.GREEN + "1." + Fore.RESET + " 📝 Manual Entry\n")
-        print(Fore.GREEN + "2." + Fore.RESET + " 🎞️ Known Franchise (e.g. Star Wars, Harry Potter)\n")
-        print(Fore.GREEN + "3." + Fore.RESET + " 🏷️ Studio / Keyword (e.g. A24, Pixar)\n")
-        print(Fore.YELLOW + "4." + Fore.RESET + " 🎛️ Configure Credentials (Plex / TMDb)\n")
-        print(Fore.RED + "5." + Fore.RESET + " ❌ Exit\n")
-        print(Fore.LIGHTBLACK_EX + "ℹ️  You can return to this menu after each collection is created.\n")
+        print(Fore.GREEN + "1." + Fore.RESET + f" {emojis.MANUAL} Manual Entry\n")
+        print(Fore.GREEN + "2." + Fore.RESET + f" {emojis.FRANCHISE} Known Franchise (e.g. Star Wars, Harry Potter)\n")
+        print(Fore.GREEN + "3." + Fore.RESET + f" {emojis.STUDIO} Studio / Keyword (e.g. A24, Pixar)\n")
+        print(Fore.YELLOW + "4." + Fore.RESET + f" {emojis.SETTINGS} Configure Credentials (Plex / TMDb)\n")
+        print(Fore.RED + "5." + Fore.RESET + f" {emojis.EXIT} Exit\n")
+        print(Fore.LIGHTBLACK_EX + f"{emojis.INFO}  You can return to this menu after each collection is created.\n")
         mode = input().strip()
+
+        if mode not in ("1", "2", "3", "4", "5"):
+            print("Invalid selection. Please choose a valid menu option (1-5).")
+            input("Press Enter to return to the main menu...")
+            continue
 
         if mode == "1":
             print("Type 'back' to return to the main menu.")
@@ -221,13 +229,13 @@ def run_collection_builder():
         if not tmdb:
             if studio_key not in [key.lower() for key in fallback_data.get("Studios", {})]:
                 print("Unknown option.")
-                return
+                return run_collection_builder()
             matched_key = next((key for key in fallback_data.get("Studios", {}) if key.lower() == studio_key), None)
             titles = fallback_data.get("Studios", {}).get(matched_key, [])
         else:
             if studio_key not in studio_map:
                 print("Unknown option.")
-                return
+                return run_collection_builder()
 
             import requests
 
