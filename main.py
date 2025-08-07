@@ -70,10 +70,10 @@ def run_collection_builder():
     # Handles user interaction, menu navigation, and collection creation.
 
     def configure_credentials():
-        # Interactive menu for setting and viewing Plex/TMDb credentials.
         def pause(msg: str = "Press Enter to return to the credentials menu..."):
             input(msg)
 
+        # Interactive menu for setting and viewing Plex/TMDb credentials.
         menu_options = [
             (f"{emojis.KEY} Set Plex Token", "1"),
             (f"{emojis.URL} Set Plex URL", "2"),
@@ -478,7 +478,7 @@ def run_collection_builder():
         if confirm != "y":
             print("Aborted by user.")
             return
-        # Actually create the collection in Plex.
+        # Creates the collection in Plex.
         library.createCollection(collection_name, items=found_movies)
         print(
             f"\n{emojis.CHECK} Created collection '{collection_name}' with {len(found_movies)} movies."
