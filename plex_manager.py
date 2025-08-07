@@ -1,4 +1,6 @@
 from plexapi.server import PlexServer
+import emojis
+
 
 class PlexManager:
     def __init__(self, token, base_url):
@@ -8,7 +10,7 @@ class PlexManager:
         try:
             return self.plex.library.section(library_name)
         except Exception as e:
-            print(f"❌ Error: Could not find library '{library_name}'")
+            print(f"{emojis.CROSS} Error: Could not find library '{library_name}'")
             print(e)
             return None
 
@@ -24,4 +26,4 @@ class PlexManager:
         for title, media in items:
             media.addCollection(collection_name)
             media.reload()
-            print(f"✅ Added '{title}' to collection: {collection_name}")
+            print(f"{emojis.CHECK} Added '{title}' to collection: {collection_name}")
