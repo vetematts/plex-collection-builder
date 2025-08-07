@@ -1,24 +1,23 @@
 # Plex Collection Builder 🎬
 
-This is a custom Python application that helps users manage and organize their Plex movie libraries by building themed collections. Whether you're a fan of franchises like *Harry Potter* or studios like *A24*, this tool streamlines the process of grouping titles into collections.
+This is a custom Python application that helps users manage and organize their Plex movie libraries by building themed collections. Whether you're a fan of franchises like _Harry Potter_ or studios like _A24_, this tool streamlines the process of grouping titles into collections.
 
-<img width="1282" height="1484" alt="CleanShot 2025-08-07 at 16 13 03@2x" src="https://github.com/user-attachments/assets/ef08fb26-52c1-4797-b566-2d1169688b39" />
----
+## <img width="1282" height="1484" alt="CleanShot 2025-08-07 at 16 13 03@2x" src="https://github.com/user-attachments/assets/ef08fb26-52c1-4797-b566-2d1169688b39" />
 
 ## 🛠️ Setup
 
 1. **Clone the repository.**
 2. **Install dependencies:**
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 3. **Run the app:**
 
-    ```bash
-    python main.py
-    ```
+   ```bash
+   python main.py
+   ```
 
 4. **Enter your credentials when prompted.**  
    You’ll need your Plex Token, Plex URL, and (optionally) a TMDb API key.
@@ -33,17 +32,18 @@ On first run, you’ll be prompted to enter your Plex Token, Plex URL, and optio
 
 ### 📎 Finding Your Plex Token & URL
 
-- **Plex Token:**  
-  1. Sign in at [app.plex.tv](https://app.plex.tv)  
-  2. Click on any Movie/Show → ⋮ → **Get Info**  
-  3. Click **View XML** at the bottom  
+- **Plex Token:**
+
+  1. Sign in at [app.plex.tv](https://app.plex.tv)
+  2. Click on any Movie/Show → ⋮ → **Get Info**
+  3. Click **View XML** at the bottom
   4. In the browser URL, copy the string after `X-Plex-Token=`
 
-- **Plex URL:**  
-  1. Open Plex in your browser.  
-  2. Go to **Settings** (wrench icon) → **Remote Access**.  
-  3. Copy the URL shown under "Remote Access".  
-     - Use the **Private URL** if you’re on your home Wi-Fi or LAN.  
+- **Plex URL:**
+  1. Open Plex in your browser.
+  2. Go to **Settings** (wrench icon) → **Remote Access**.
+  3. Copy the URL shown under "Remote Access".
+     - Use the **Private URL** if you’re on your home Wi-Fi or LAN.
      - Use the **Public URL** if you’re outside your network.
 
 ---
