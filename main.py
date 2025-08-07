@@ -8,7 +8,6 @@ import os
 import json
 import re
 
-from dotenv import load_dotenv
 from colorama import init, Fore
 import emojis
 from plex_manager import PlexManager
@@ -34,13 +33,12 @@ def save_config(cfg):
 
 
 init(autoreset=True)
-load_dotenv()
 
 config = load_config()
 PLEX_TOKEN = config.get("PLEX_TOKEN")
 PLEX_URL = config.get("PLEX_URL")
 TMDB_API_KEY = config.get("TMDB_API_KEY")
-MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
+MOCK_MODE = False  # Set to True to simulate Plex actions without making changes
 
 
 def welcome():
