@@ -312,7 +312,7 @@ def run_collection_builder():
 
         # Print TMDb API fallback warning if needed
         if not tmdb:
-            studios_data = load_fallback_data("Studios")
+            studios_data = fallback_data.get("Studios", {})
             print(
                 Fore.RED
                 + f"{emojis.CROSS} TMDb API key not provided. Using fallback hardcoded titles.\n"
@@ -325,67 +325,88 @@ def run_collection_builder():
                 + Fore.LIGHTBLACK_EX
                 + f"{emojis.REPEAT} Type the studio name (or 'back' to return):"
             )
-            print("Type 'back' to return to the main menu.")
-            studio_key = input("Choose one: ").strip().lower()
-            if studio_key == "back":
+            studio_key_raw = input().strip()
+            if studio_key_raw.lower() == "back":
                 return run_collection_builder()
 
-            if not tmdb:
-                if studio_key not in [
-                    key.lower() for key in fallback_data.get("Studios", {})
-                ]:
-                    print("Unknown option.")
-                    return run_collection_builder()
-                matched_key = next(
-                    (
-                        key
-                        for key in fallback_data.get("Studios", {})
-                        if key.lower() == studio_key
-                    ),
-                    None,
-                )
-                titles = fallback_data.get("Studios", {}).get(matched_key, [])
-            else:
-                if studio_key not in studio_map:
-                    print("Unknown option.")
-                    return run_collection_builder()
+            # Case-insensitive match against fallback studios
+            lowered_map = {k.lower(): k for k in studios_data.keys()}
+            if studio_key_raw.lower() not in lowered_map:
+                print("Unknown option.")
+                return run_collection_builder()
 
-                import requests
+            matched_key = lowered_map[studio_key_raw.lower()]
+            titles = studios_data.get(matched_key, [])
+        else:
+            # If TMDb key present: show studio options from studio_map and fetch via TMDb
+            print(Fore.CYAN + f"{emojis.STUDIO}  Available Studios:")
+            print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+            print_studio_list(
+                [
+                    name.upper() if name in ("mcu", "dceu") else name.title()
+                    for name in studio_map.keys()
+                ],
+                columns=3,
+                padding=24,
+            )
+            print(
+                "\n"
+                + Fore.LIGHTBLACK_EX
+                + f"{emojis.REPEAT} Type the studio name (or 'back' to return):"
+            )
+            studio_key_raw = input().strip()
+            if studio_key_raw.lower() == "back":
+                return run_collection_builder()
 
-                def fetch_movies_by_company_or_keyword(
-                    api_key, company_id=None, keyword_id=None
-                ):
-                    url = "https://api.themoviedb.org/3/discover/movie"
-                    params = {
-                        "api_key": api_key,
-                        "language": "en-US",
-                        "sort_by": "popularity.desc",
-                        "page": 1,
-                    }
-                    if company_id:
-                        params["with_companies"] = company_id
-                    if keyword_id:
-                        params["with_keywords"] = keyword_id
+            # Normalize input for matching against studio_map keys
+            norm_input = studio_key_raw.strip().lower()
+            if norm_input not in studio_map:
+                print("Unknown option.")
+                return run_collection_builder()
 
-                    all_titles = []
-                    while True:
-                        response = requests.get(url, params=params, timeout=10)
-                        if response.status_code != 200:
-                            print("Failed to fetch movies.")
-                            break
-                        data = response.json()
-                        all_titles.extend([movie["title"] for movie in data["results"]])
-                        if data["page"] >= data["total_pages"]:
-                            break
-                        params["page"] += 1
-                    return all_titles
+            # Fetch titles from TMDb for the selected studio/keyword
+            import requests
 
-                studio_info = studio_map[studio_key]
-                titles = fetch_movies_by_company_or_keyword(
-                    config.get("TMDB_API_KEY"),
-                    company_id=studio_info.get("company"),
-                    keyword_id=studio_info.get("keyword"),
-                )
+            def fetch_movies_by_company_or_keyword(
+                api_key, company_id=None, keyword_id=None
+            ):
+                url = "https://api.themoviedb.org/3/discover/movie"
+                params = {
+                    "api_key": api_key,
+                    "language": "en-US",
+                    "sort_by": "popularity.desc",
+                    "page": 1,
+                }
+                if company_id:
+                    params["with_companies"] = company_id
+                if keyword_id:
+                    params["with_keywords"] = keyword_id
+
+                all_titles = []
+                while True:
+                    response = requests.get(url, params=params, timeout=10)
+                    if response.status_code != 200:
+                        print("Failed to fetch movies.")
+                        break
+                    data = response.json()
+                    all_titles.extend(
+                        [
+                            movie.get("title")
+                            for movie in data.get("results", [])
+                            if movie.get("title")
+                        ]
+                    )
+                    if data.get("page", 1) >= data.get("total_pages", 1):
+                        break
+                    params["page"] += 1
+                return all_titles
+
+            studio_info = studio_map[norm_input]
+            titles = fetch_movies_by_company_or_keyword(
+                config.get("TMDB_API_KEY"),
+                company_id=studio_info.get("company"),
+                keyword_id=studio_info.get("keyword"),
+            )
 
     if mode in ("2", "3"):
         # Prompt for collection name after franchise/studio selection.
